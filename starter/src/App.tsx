@@ -1,22 +1,41 @@
-import React from "react";
+import { memo } from "react";
+
+import createFastContext from "./createFastContext";
+
+const initialState = {
+  first: "",
+  last: "",
+};
+
+const { Provider, useStore } = createFastContext(initialState);
 
 const TextInput = ({ value }: { value: "first" | "last" }) => {
+  const [fieldValue, setStore] = useStore((store) => store[value]);
   return (
     <div className="field">
-      {value}: <input />
+      {value}:{" "}
+      <input
+        value={fieldValue}
+        onChange={(e) => {
+          setStore({
+            [value]: e.target.value,
+          });
+        }}
+      />
     </div>
   );
 };
 
 const Display = ({ value }: { value: "first" | "last" }) => {
+  const [fieldValue] = useStore((store) => store[value]);
   return (
     <div className="value">
-      {value}: {""}
+      {value}: {fieldValue}
     </div>
   );
 };
 
-const FormContainer = () => {
+const FormContainer = memo(() => {
   return (
     <div className="container">
       <h5>FormContainer</h5>
@@ -24,9 +43,9 @@ const FormContainer = () => {
       <TextInput value="last" />
     </div>
   );
-};
+});
 
-const DisplayContainer = () => {
+const DisplayContainer = memo(() => {
   return (
     <div className="container">
       <h5>DisplayContainer</h5>
@@ -34,9 +53,9 @@ const DisplayContainer = () => {
       <Display value="last" />
     </div>
   );
-};
+});
 
-const ContentContainer = () => {
+const ContentContainer = memo(() => {
   return (
     <div className="container">
       <h5>ContentContainer</h5>
@@ -44,14 +63,16 @@ const ContentContainer = () => {
       <DisplayContainer />
     </div>
   );
-};
+});
 
 function App() {
   return (
-    <div className="container">
-      <h5>App</h5>
-      <ContentContainer />
-    </div>
+    <Provider>
+      <div className="container">
+        <h5>App</h5>
+        <ContentContainer />
+      </div>
+    </Provider>
   );
 }
 
